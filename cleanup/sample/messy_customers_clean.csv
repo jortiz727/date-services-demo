@@ -1,0 +1,13 @@
+﻿Customer Name,Email,Phone,State,Signup Date,Last Order,Total Spent,Notes
+Maria Gonzalez,maria.gonzalez@example.com,(555) 010-1234,CA,2024-03-14,2026-09-01,1250.00,VIP
+Wei Chen,wei.chen@example.com,(555) 010-2222 x14,NY,2025-01-05,2026-09-12,89.50,
+David O'brien,david.obrien@example.com,(555) 010-3333,TX,2025-02-30,2026-09-03,410.00,date typo?
+Priya Patel,priya.patel@example,(555) 010-4444,WA,2025-04-02,2026-09-20,2400.00,
+Aisha Khan,aisha.khan@example.org,(555) 010-5555,WA,2024-12-01,,-45.00,refund issued
+Tom Baker,tom.baker@example.com,555-0106,Calif,2024-11-19,2026-08-30,75.00,
+Sarah Lee,sarah.lee@example.com,(555) 010-7777,OR,2025-07-04,2026-10-01,1099.00,
+John Smith,,(555) 010-8888,FL,2025-05-22,2026-09-09,230.00,no email on file
+Linh Nguyen,linh.nguyen@example.com,(555) 010-9999,TX,2025-03-01,,,
+Omar Haddad,omar.haddad@example.com,(555) 010-1212,NY,2025-06-15,2026-09-28,560.00,prefers phone calls
+Elena Rossi,elena.rossi@example.com,(555) 010-1313 x7,IL,13/45/2025,2026-09-02,318.40,
+Grace Kim,grace.kim@example.com,(555) 010-1414,CA,2025-02-10,2026-09-25,1200.00,

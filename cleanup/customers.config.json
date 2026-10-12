@@ -1,0 +1,14 @@
+{
+  "columns": {
+    "Customer Name": {"type": "name", "aliases": ["name", "customer"]},
+    "Email": {"type": "email", "aliases": ["e-mail", "email address"]},
+    "Phone": {"type": "phone", "aliases": ["phone #", "phone number", "tel"]},
+    "State": {"type": "state", "aliases": ["st"]},
+    "Signup Date": {"type": "date", "aliases": ["signup", "joined"]},
+    "Last Order": {"type": "date", "aliases": ["last order date"]},
+    "Total Spent": {"type": "money", "aliases": ["total spend", "lifetime value"]},
+    "Notes": {"type": "text"}
+  },
+  "required": ["Email"],
+  "dedupe_on": ["Email"]
+}

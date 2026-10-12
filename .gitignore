@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+service_account.json
+oauth_client.json
+sheets_token.json
+books.csv
+countries.csv

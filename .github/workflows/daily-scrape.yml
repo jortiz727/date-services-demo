@@ -1,0 +1,57 @@
+name: Daily price scrape
+
+# Runs the two sandbox scrapers, whose sites invite scraping. The daily schedule
+# is switched off; restore the two lines below to turn it back on.
+#   schedule:
+#     - cron: "0 13 * * *" # every day at 13:00 UTC
+on:
+  workflow_dispatch: # runnable by hand from the Actions tab
+
+permissions:
+  contents: write # to commit the updated data/ files
+
+concurrency: daily-scrape
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Tests
+        run: |
+          python test_report.py
+          python test_sandbox.py
+
+      # Each scraper may fail without stopping the other; the last step reports it.
+      - name: Books (multi-page)
+        id: books
+        continue-on-error: true
+        run: |
+          python scrape_books.py --out books.csv
+          python report.py --name books --current books.csv
+
+      - name: Countries (single page)
+        id: countries
+        continue-on-error: true
+        run: python scrape_countries.py --out data/countries_latest.csv
+
+      - name: Commit data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet || git commit -m "Daily price data $(date -u +%F)"
+          git push
+
+      - name: Fail the run if a scraper failed
+        if: steps.books.outcome == 'failure' || steps.countries.outcome == 'failure'
+        run: exit 1
