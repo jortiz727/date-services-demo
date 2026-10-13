@@ -1,9 +1,11 @@
 name: Daily price scrape
 
-# Runs the two sandbox scrapers, whose sites invite scraping. The daily schedule
-# is switched off; restore the two lines below to turn it back on.
+# Runs the two sandbox scrapers, whose sites invite scraping, and collects the
+# European Central Bank's daily reference rates. The schedule is switched off;
+# restore the two lines below to turn it back on. The ECB publishes at about
+# 16:00 CET on working days, so the suggested time is after that, Monday to Friday.
 #   schedule:
-#     - cron: "0 13 * * *" # every day at 13:00 UTC
+#     - cron: "0 16 * * 1-5" # weekdays at 16:00 UTC
 on:
   workflow_dispatch: # runnable by hand from the Actions tab
 
@@ -30,8 +32,9 @@ jobs:
         run: |
           python test_report.py
           python test_sandbox.py
+          python test_rates.py
 
-      # Each scraper may fail without stopping the other; the last step reports it.
+      # Each scraper may fail without stopping the others; the last step reports it.
       - name: Books (multi-page)
         id: books
         continue-on-error: true
@@ -44,6 +47,14 @@ jobs:
         continue-on-error: true
         run: python scrape_countries.py --out data/countries_latest.csv
 
+      - name: Euro exchange rates (changes daily)
+        id: rates
+        continue-on-error: true
+        run: |
+          python scrape_rates.py --out rates.csv
+          python report.py --name euro --current rates.csv --measure rate --items currencies \
+            --symbol "" --source "European Central Bank, euro foreign exchange reference rates"
+
       - name: Commit data
         run: |
           git config user.name "github-actions[bot]"
@@ -53,5 +64,5 @@ jobs:
           git push
 
       - name: Fail the run if a scraper failed
-        if: steps.books.outcome == 'failure' || steps.countries.outcome == 'failure'
+        if: steps.books.outcome == 'failure' || steps.countries.outcome == 'failure' || steps.rates.outcome == 'failure'
         run: exit 1

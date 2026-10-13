@@ -77,6 +77,55 @@ class RunTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             run("books", self.scrape([]), self.data, "2026-10-12")
 
+    def test_biggest_percentage_move_is_listed_first(self):
+        run("books", self.scrape([row("A", "Cheap", 10), row("B", "Dear", 1000)]), self.data, "2026-10-12")
+        text = run("books", self.scrape([row("A", "Cheap", 12), row("B", "Dear", 1050)]),
+                   self.data, "2026-10-13")
+        self.assertLess(text.index("Cheap"), text.index("Dear"))
+        self.assertIn("| $10.00 | $12.00 | +2.00 | +20.00% |", text)
+
+
+class RateRunTests(unittest.TestCase):
+    """A column other than `price`, with more decimal places than money has."""
+
+    WORDING = dict(measure="rate", items="currencies", symbol="", source="European Central Bank")
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.dir = Path(tmp.name)
+        self.data = self.dir / "data"
+
+    def scrape(self, rates):
+        path = self.dir / "current.csv"
+        with path.open("w", newline="", encoding="utf-8") as fh:
+            writer = csv.DictWriter(fh, fieldnames=["name", "rate", "url"])
+            writer.writeheader()
+            writer.writerows({"name": code, "rate": rate, "url": f"https://x.test/{code}"}
+                             for code, rate in rates.items())
+        return path
+
+    def test_small_moves_keep_their_decimal_places(self):
+        run("euro", self.scrape({"GBP": 0.8446, "IDR": 20004.87, "USD": 1.1181}), self.data,
+            "2026-10-12", **self.WORDING)
+        text = run("euro", self.scrape({"GBP": 0.84515, "IDR": 19990.5, "USD": 1.1181}), self.data,
+                   "2026-10-13", **self.WORDING)
+        self.assertIn("# euro rate report: 2026-10-13", text)
+        self.assertIn("3 currencies tracked. 1 rate drops, 1 rises, 0 new, 0 no longer listed.", text)
+        self.assertIn("| [GBP](https://x.test/GBP) | 0.84460 | 0.84515 | +0.00055 | +0.07% |", text)
+        self.assertIn("| [IDR](https://x.test/IDR) | 20,004.87 | 19,990.50 | -14.37 | -0.07% |", text)
+        self.assertTrue(text.endswith("Source: European Central Bank\n"))
+        with (self.data / "euro_changes.csv").open(encoding="utf-8") as fh:
+            log = {r["name"]: r for r in csv.DictReader(fh)}
+        self.assertEqual((log["GBP"]["old"], log["GBP"]["new"], log["GBP"]["diff"]),
+                         ("0.8446", "0.84515", "0.00055"))
+
+    def test_source_is_credited_even_when_nothing_changed(self):
+        run("euro", self.scrape({"USD": 1.1181}), self.data, "2026-10-12", **self.WORDING)
+        text = run("euro", self.scrape({"USD": 1.1181}), self.data, "2026-10-13", **self.WORDING)
+        self.assertIn("No changes", text)
+        self.assertIn("Source: European Central Bank", text)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

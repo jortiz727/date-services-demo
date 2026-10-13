@@ -1,0 +1,29 @@
+date,change,name,brand,old,new,diff,pct,url
+2026-10-13,drop,Indian rupee (INR),,107.086,106.6,-0.486,-0.45,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-inr.en.html
+2026-10-13,drop,Norwegian krone (NOK),,10.6955,10.6685,-0.0270,-0.25,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-nok.en.html
+2026-10-13,drop,Japanese yen (JPY),,177.33,176.91,-0.42,-0.24,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-jpy.en.html
+2026-10-13,drop,Swedish krona (SEK),,11.1965,11.1698,-0.0267,-0.24,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-sek.en.html
+2026-10-13,drop,Hungarian forint (HUF),,365.13,364.31,-0.82,-0.22,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-huf.en.html
+2026-10-13,drop,South African rand (ZAR),,18.4945,18.4561,-0.0384,-0.21,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-zar.en.html
+2026-10-13,drop,Polish zloty (PLN),,4.385,4.3768,-0.0082,-0.19,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-pln.en.html
+2026-10-13,drop,New Zealand dollar (NZD),,1.9968,1.9931,-0.0037,-0.19,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-nzd.en.html
+2026-10-13,drop,Indonesian rupiah (IDR),,20036.18,20004.87,-31.31,-0.16,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-idr.en.html
+2026-10-13,drop,Icelandic krona (ISK),,136.4,136.2,-0.2,-0.15,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-isk.en.html
+2026-10-13,drop,Czech koruna (CZK),,24.391,24.368,-0.023,-0.09,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-czk.en.html
+2026-10-13,drop,Canadian dollar (CAD),,1.5946,1.5933,-0.0013,-0.08,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-cad.en.html
+2026-10-13,drop,Pound sterling (GBP),,0.84478,0.8446,-0.00018,-0.02,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-gbp.en.html
+2026-10-13,drop,Romanian leu (RON),,5.337,5.3363,-0.0007,-0.01,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-ron.en.html
+2026-10-13,drop,Thai baht (THB),,37.585,37.58,-0.005,-0.01,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-thb.en.html
+2026-10-13,rise,South Korean won (KRW),,1490.53,1500.81,10.28,0.69,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-krw.en.html
+2026-10-13,rise,Brazilian real (BRL),,5.5819,5.6125,0.0306,0.55,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-brl.en.html
+2026-10-13,rise,Israeli shekel (ILS),,3.432,3.4404,0.0084,0.24,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-ils.en.html
+2026-10-13,rise,Turkish lira (TRY),,55.1635,55.2325,0.0690,0.13,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-try.en.html
+2026-10-13,rise,Malaysian ringgit (MYR),,4.5663,4.5714,0.0051,0.11,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-myr.en.html
+2026-10-13,rise,Chinese yuan renminbi (CNY),,7.4832,7.489,0.0058,0.08,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-cny.en.html
+2026-10-13,rise,Philippine peso (PHP),,70.169,70.225,0.056,0.08,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-php.en.html
+2026-10-13,rise,Hong Kong dollar (HKD),,8.7743,8.7802,0.0059,0.07,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-hkd.en.html
+2026-10-13,rise,US dollar (USD),,1.1181,1.1188,0.0007,0.06,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-usd.en.html
+2026-10-13,rise,Singapore dollar (SGD),,1.4314,1.4319,0.0005,0.03,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-sgd.en.html
+2026-10-13,rise,Mexican peso (MXN),,20.5081,20.5126,0.0045,0.02,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-mxn.en.html
+2026-10-13,rise,Danish krone (DKK),,7.4748,7.4753,0.0005,0.01,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-dkk.en.html
+2026-10-13,rise,Australian dollar (AUD),,1.6032,1.6033,0.0001,0.01,https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-aud.en.html

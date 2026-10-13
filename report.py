@@ -7,10 +7,16 @@ Each run, for a scraper called NAME:
     data/NAME_changes.csv   one row appended per new, removed, or re-priced product
     data/NAME_report.md     readable summary of this run's changes
 
+The number compared is the `price` column unless --measure names another one.
+
 Usage
 -----
     python scrape_books.py
     python report.py --name books --current books.csv
+
+    python scrape_rates.py
+    python report.py --name euro --current rates.csv --measure rate --items currencies
+                     --symbol "" --source "European Central Bank"      (all on one line)
 """
 from __future__ import annotations
 
@@ -19,12 +25,12 @@ import csv
 import os
 import sys
 from datetime import datetime, timezone
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 KEY = "url"
-CHANGE_COLS = ["date", "change", "name", "brand", "old_price", "new_price", "diff", "url"]
-SECTIONS = [("drop", "Price drops"), ("rise", "Price rises"), ("new", "New products"),
-            ("removed", "No longer listed")]
+CHANGE_COLS = ["date", "change", "name", "brand", "old", "new", "diff", "pct", "url"]
+KINDS = ["drop", "rise", "new", "removed"]
 
 
 def read_rows(path: Path) -> tuple[list[str], dict[str, dict]]:
@@ -34,65 +40,78 @@ def read_rows(path: Path) -> tuple[list[str], dict[str, dict]]:
         return list(reader.fieldnames or []), {r[KEY]: r for r in reader if r.get(KEY)}
 
 
-def _price(row: dict) -> float | None:
+def _value(row: dict, measure: str) -> Decimal | None:
+    # Decimal, not float: a rate moving from 0.8446 to 0.8451 must not round away.
     try:
-        return float(row.get("price") or "")
-    except ValueError:
+        value = Decimal(row.get(measure) or "")
+    except InvalidOperation:
         return None
+    return value if value.is_finite() else None
 
 
-def _change(kind: str, row: dict, old: float | None, new: float | None, date: str) -> dict:
+def _change(kind: str, row: dict, old: Decimal | None, new: Decimal | None, date: str) -> dict:
     both = old is not None and new is not None
     return {
         "date": date, "change": kind, "name": row.get("name", ""), "brand": row.get("brand", ""),
-        "old_price": old, "new_price": new, "diff": round(new - old, 2) if both else None,
+        "old": old, "new": new, "diff": new - old if both else None,
+        "pct": round(float((new - old) / old * 100), 2) if both and old else None,
         "url": row[KEY],
     }
 
 
-def diff(previous: dict[str, dict], current: dict[str, dict], date: str) -> list[dict]:
-    """Every difference between two scrapes, biggest price moves first."""
+def diff(previous: dict[str, dict], current: dict[str, dict], date: str,
+         measure: str = "price") -> list[dict]:
+    """Every difference between two scrapes, biggest percentage moves first."""
     changes = []
     for url, row in current.items():
         if url not in previous:
-            changes.append(_change("new", row, None, _price(row), date))
+            changes.append(_change("new", row, None, _value(row, measure), date))
             continue
-        old, new = _price(previous[url]), _price(row)
+        old, new = _value(previous[url], measure), _value(row, measure)
         if old is not None and new is not None and old != new:
             changes.append(_change("drop" if new < old else "rise", row, old, new, date))
     for url, row in previous.items():
         if url not in current:
-            changes.append(_change("removed", row, _price(row), None, date))
-    order = [kind for kind, _ in SECTIONS]
-    return sorted(changes, key=lambda c: (order.index(c["change"]), -abs(c["diff"] or 0)))
+            changes.append(_change("removed", row, _value(row, measure), None, date))
+    return sorted(changes, key=lambda c: (KINDS.index(c["change"]), -abs(c["pct"] or 0)))
 
 
-def _usd(value: float | None) -> str:
-    return f"${value:,.2f}" if value is not None else ""
+def _places(*values: Decimal | None) -> int:
+    """Decimal places for one table row: the most any of its values has, and at least two."""
+    return max([2] + [-v.as_tuple().exponent for v in values if v is not None])
 
 
-def render(name: str, date: str, tracked: int, changes: list[dict], first_run: bool) -> str:
-    lines = [f"# {name} price report: {date}", ""]
+def render(name: str, date: str, tracked: int, changes: list[dict], first_run: bool, *,
+           measure: str = "price", items: str = "products", symbol: str = "$",
+           source: str = "") -> str:
+    lines = [f"# {name} {measure} report: {date}", ""]
     if first_run:
-        lines.append(f"First run: baseline of {tracked} products recorded. "
+        lines.append(f"First run: baseline of {tracked} {items} recorded. "
                      "Changes appear from the next run.")
-        return "\n".join(lines) + "\n"
-    if not changes:
-        lines.append(f"{tracked} products tracked. No changes since the previous run.")
-        return "\n".join(lines) + "\n"
-
-    counts = {kind: sum(c["change"] == kind for c in changes) for kind, _ in SECTIONS}
-    lines.append(f"{tracked} products tracked. {counts['drop']} price drops, {counts['rise']} rises, "
-                 f"{counts['new']} new, {counts['removed']} no longer listed.")
-    for kind, title in SECTIONS:
+    elif not changes:
+        lines.append(f"{tracked} {items} tracked. No changes since the previous run.")
+    else:
+        counts = {kind: sum(c["change"] == kind for c in changes) for kind in KINDS}
+        lines.append(f"{tracked} {items} tracked. {counts['drop']} {measure} drops, "
+                     f"{counts['rise']} rises, {counts['new']} new, "
+                     f"{counts['removed']} no longer listed.")
+    titles = {"drop": f"{measure.capitalize()} drops", "rise": f"{measure.capitalize()} rises",
+              "new": f"New {items}", "removed": "No longer listed"}
+    for kind in KINDS:
         rows = [c for c in changes if c["change"] == kind]
         if not rows:
             continue
-        lines += ["", f"## {title}", "", "| Product | Was | Now | Change |", "|---|---:|---:|---:|"]
+        lines += ["", f"## {titles[kind]}", "", "| Name | Was | Now | Change | % |",
+                  "|---|---:|---:|---:|---:|"]
         for c in rows:
+            places = _places(c["old"], c["new"])
+            was, now = (f"{symbol}{v:,.{places}f}" if v is not None else "" for v in (c["old"], c["new"]))
+            move = f"{c['diff']:+,.{places}f}" if c["diff"] is not None else ""
+            pct = f"{c['pct']:+.2f}%" if c["pct"] is not None else ""
             label = f"[{c['name'].replace('|', '/')}]({c['url']})"
-            move = f"{c['diff']:+,.2f}" if c["diff"] is not None else ""
-            lines.append(f"| {label} | {_usd(c['old_price'])} | {_usd(c['new_price'])} | {move} |")
+            lines.append(f"| {label} | {was} | {now} | {move} | {pct} |")
+    if source:
+        lines += ["", f"Source: {source}"]
     return "\n".join(lines) + "\n"
 
 
@@ -105,8 +124,12 @@ def _write(path: Path, cols: list[str], rows: list[dict], append: bool = False) 
         writer.writerows(rows)
 
 
-def run(name: str, current_csv: Path, data_dir: Path, date: str, force: bool = False) -> str:
-    """Update the data files for one scraper and return the report text."""
+def run(name: str, current_csv: Path, data_dir: Path, date: str, force: bool = False, *,
+        measure: str = "price", **wording: str) -> str:
+    """Update the data files for one scraper and return the report text.
+
+    `wording` is passed on to `render`: items, symbol, source.
+    """
     cols, current = read_rows(current_csv)
     if not current:
         raise RuntimeError(f"{current_csv} has no products; keeping the previous data")
@@ -121,12 +144,12 @@ def run(name: str, current_csv: Path, data_dir: Path, date: str, force: bool = F
             "refusing to overwrite. Check the scraper, or pass --force if this is real."
         )
 
-    changes = [] if first_run else diff(previous, current, date)
+    changes = [] if first_run else diff(previous, current, date, measure)
     data_dir.mkdir(parents=True, exist_ok=True)
     if changes:
         _write(data_dir / f"{name}_changes.csv", CHANGE_COLS, changes, append=True)
     _write(latest, cols, list(current.values()))
-    text = render(name, date, len(current), changes, first_run)
+    text = render(name, date, len(current), changes, first_run, measure=measure, **wording)
     (data_dir / f"{name}_report.md").write_text(text, encoding="utf-8", newline="\n")
     return text
 
@@ -137,11 +160,17 @@ def main() -> int:
     ap.add_argument("--current", required=True, help="CSV the scraper just wrote")
     ap.add_argument("--data-dir", default="data", help="where the tracked files live")
     ap.add_argument("--force", action="store_true", help="accept a scrape with far fewer products")
+    ap.add_argument("--measure", default="price",
+                    help="column holding the number to compare, also used in the wording, e.g. rate")
+    ap.add_argument("--items", default="products", help="what the rows are called, e.g. currencies")
+    ap.add_argument("--symbol", default="$", help='put before each value; pass "" for none')
+    ap.add_argument("--source", default="", help="credit line added under the report")
     args = ap.parse_args()
 
     date = datetime.now(timezone.utc).date().isoformat()
     try:
-        text = run(args.name, Path(args.current), Path(args.data_dir), date, args.force)
+        text = run(args.name, Path(args.current), Path(args.data_dir), date, args.force,
+                   measure=args.measure, items=args.items, symbol=args.symbol, source=args.source)
     except (OSError, RuntimeError) as exc:
         print(f"report failed: {exc}", file=sys.stderr)
         return 1
