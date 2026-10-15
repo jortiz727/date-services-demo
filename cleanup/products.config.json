@@ -1,0 +1,14 @@
+{
+  "columns": {
+    "SKU": {"type": "sku", "aliases": ["item #", "item number", "product code", "style #"]},
+    "Title": {"type": "text", "aliases": ["product name", "item name", "description"]},
+    "Price": {"type": "money", "aliases": ["retail", "retail price", "unit price"]},
+    "Compare At Price": {"type": "money", "aliases": ["msrp", "was price", "compare at"]},
+    "Quantity": {"type": "integer", "aliases": ["qty", "on hand", "stock", "inventory"]},
+    "Category": {"type": "text"},
+    "Vendor": {"type": "text", "aliases": ["brand", "supplier"]},
+    "Barcode": {"type": "sku", "aliases": ["upc", "ean", "gtin"]}
+  },
+  "required": ["SKU", "Title", "Price"],
+  "dedupe_on": ["SKU"]
+}
